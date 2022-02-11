@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ialinaok <ialinaok@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:42:46 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 00:15:21 by ialinaok         ###   ########.fr       */
+/*   Updated: 2022/02/11 01:00:53 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	ptr = newstr;
 	while (*s1)
 		*newstr++ = *s1++;
-	while (*s2 != )
+	while (*s2)
 		*newstr++ = *s2++;
 	*newstr = '\0';
 	return (ptr);

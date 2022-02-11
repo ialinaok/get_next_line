@@ -1,0 +1,93 @@
+ok, soooo what do we have to do:
+we have a file and we read from it by the buffer size
+until we find a \n
+and then we return that line
+
+- memory for the line, aka what we're reading, is allocated dynamically
+- static variable is used for the leftovers
+- function should ideally be called until the end of the file
+- no memory leaks - but in between function calls, the leftovers are saved
+in the static variable
+
+step by step:
+1# read the BUFFER_SIZE
+2# alloctae memory for what you read
+3# save what you read in the allocated thing - array of arrays? it would make
+it easy to allocate NO IT WOULD NOT WORK
+you cannot extend the memory <shruggie>
+or you don't have to, but then how to allocate more memory for the same 
+variable?
+4# check if there's newline character in what you've read already 
+  - if yes - return the line
+  - if no - go to step 1# and save the next part read in the array of arrays
+  now: array of pointers or 2D array..? I like the pointers... just don't mess it up alright
+now... how to return the line? I have to free the memory that I have allocated. 
+4# if yes:
+    copy the line from buffer to the variable that you're going to return 
+    - it can be local! it's not going to leak memory!
+    put the leftovers from the buffer to the static variable, so that it's saved for the next round
+    return the line
+4# if no - read next buffer, allocate, save in the buffer, check for newline
+(that just calls for a recursive function so badly)
+keep repeating until \n is found or EOF
+
+theoretically it should be in the beginning, but....
+5# next function call - you have to deal with the leftovers now
+what do I save in the buffer? the part that I read. do I allocate memory for it?
+not neccesarily, I can make it local. and static. then I can save leftovers there 
+already
+then, for allocating I use another char * - and this one can be dynamically
+allocated, as there's going to be a funky number of characters saved there
+and not like x times BUFFER_SIZE.
+
+strjoin allocates memory for ya
+how do I make a single line? that ends at the newline character and not 
+somewhere where the buffer?
+
+ehheheheh
+ok you have to decide what your buffer is going to be
+where you keep one read part of BUFFER_SIZE
+ok so now, you can have it in heap orrrr you can just have an array:
+char buff[BUFFER_SIZE + 1];
+
+how to find newline character:
+strchr returns a pointer to the first occurence of the character c in the string
+returns a pointer to the char or NUL if not found
+how to manage the line and the leftover
+
+
+or I can just search with an index, but I think this is quite handy if I can make it work
+I don't have to worry about fd, read just does that for me, as I've stored the previous 
+leftovers, I can freely read from another BUFFER_SIZE position
+ok, but the reading until newline is found just calls for a newline, or maybe
+I could just set it up in a loop
+
+	if I have the number of characters that are there in the line - I can make a local
+	variable of this certain size that will then magically disappear, there's no need to 
+	allocate memory anymore
+
+so I am allocating plus one byte, but I'm never actually putting a null there
+ok, strjoin is doing that
+
+ok, figuring out the nuls and stuff
+put a nul at the end of read buff, for the strjoin to work properly
+buff[BUFFER_SIZE] is going to be where you need to put in the nul
+
+what if I do both at the same time
+leftover will not be bigger than BUFFER_SIZE
+I can make an array and then pass it by reference to the function that will extract
+the line, and modify the leftover there
+bingo 
+
+ok so now I've got it handled for reading a single line, there's nothing about using the leftover yet
+
+ok so it's not so easy 
+
+ so what read actually does, when you give it a buffer that already has something
+ it will add to it
+ concatenate the new things to whats there
+ but it needs an empty buf
+
+ leftover need to be pushed to the beginning of the static buffer
+ you could us memcpy
+
