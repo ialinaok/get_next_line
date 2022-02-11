@@ -3,15 +3,39 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ialinaok <ialinaok@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 01:02:36 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/11 03:40:19 by ialinaok         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+char	*get_next_line(int fd)
+{
+	static char	buffer[BUFFER_SIZE + 1];
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = read_buffers(fd, buffer);
+}
+
+char	*read_buffers(int fd, char *buffer)
+{
+	int		check;
+	char	*find_n;
+	
+	check = read(fd, buffer, BUFFER_SIZE);
+	if (check == -1)
+		return (NULL);
+	buffer[BUFFER_SIZE] = '\0';
+	find_n = ft_strchr(buffer, '\n');
+	while ()
+}
+
+///graveyard code
 char	*read_buffers(int fd);
 char	*cut_line(char *buff_join, int n, char *leftover);
 

@@ -86,8 +86,17 @@ ok so it's not so easy
  so what read actually does, when you give it a buffer that already has something
  it will add to it
  concatenate the new things to whats there
- but it needs an empty buf
+ but it needs an empty buffer - otherwise the fd will jump the full BUFFER_SIZE but 
+ we'll not be able to save it all
 
- leftover need to be pushed to the beginning of the static buffer
- you could us memcpy
+so the way you wanna do it, you build up a line and allocate memory dynamically, 
+then you return it
+but before you return it, update the buffer, and only keep there what's leftover
+and do so in a static variable
+leftover needs to be pushed to the beginning of the static buffer
+so that it's saved for the future call
+upon the next call you can see: oh, there's something there, and empty it
+it should be the neginning of the line 
+then you read BUFFER_SIZE
+and repeat the whole process generally
 
