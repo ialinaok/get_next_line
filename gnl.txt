@@ -106,4 +106,33 @@ if I find a newline, I want to return a line
 but let's assume I'm not going to find it in the first reading, 
 so let's first put the if I didn't find a newline condition
 if I dont find it, I want to update the line and clean the buffer
+- so join the line with buffer
+- put zeroes in the buffer
+- read again
+if I find a newline character in the current buffer
+- update the line until the newline character
+- push leftovers to the beginning of the buffer
+- return the line
+
+MEMLEAKS
+every time I call strjoin, I make an entirely new string
+I need to remove the old one
+I need a temporary thing for that ok but how
+I have to join the buffer to the previous line-build-up
+so make a new line
+keep the ptr of the old one
+free the memory of the old one
+point it to the new one
+
+full_line function
+takes the buffer that has \n in it, current line with previously 
+joined buffers and a pointer to char variable (line)
+allocates memory for the new full line, where I will put line with all 
+previously joined buffers and the part of the buffer before the newline char
+and a newline char
+I'm not sure whether I should null terminate this one
+then I free the temp
+
+what still needs to be done is moving the leftover in the buffer
+and in the reading, check if sth is there and if yes, first join it together
 

@@ -6,7 +6,7 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 15:54:21 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/11 17:55:10 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,18 @@
 char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
+	char		*tmp;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	line = read_buffers(fd, buffer);
+	tmp = (char *) malloc(1);
+	*tmp = '\0';
+	line = read_buffers(fd, buffer, tmp, line);
+	return (line);
 }
 
-char	*read_buffers(int fd, char *buffer)
+char	*read_buffers(int fd, char *buffer, char *tmp, char *line)
 {
 	int		check;
 	char	*find_n;
@@ -36,11 +40,43 @@ char	*read_buffers(int fd, char *buffer)
 		find_n = ft_strchr(buffer, '\n');
 		if (find_n == NULL) // that means, if there is no newline in current buffer
 		{
+			line = ft_strjoin(tmp, buffer);
+			free(tmp);
+			tmp = line;
+			ft_bzero(buffer, BUFFER_SIZE);
+			check = read(fd, buffer, BUFFER_SIZE);
+			buffer[BUFFER_SIZE] = '\0';
+		}
+		if (find_n != NULL) // so when I DO find a newline character //tmp has a current line of joined buffers
+		{
+			line = full_line(tmp, buffer, line) // I think this could be a void function and that assigning line to the same line is redundant
 			
 		}
-		check = read(fd, buffer, BUFFER_SIZE);
 	}
-	
+}
+
+char	*full_line(char *tmp, char *buffer, char *line)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (buffer[i] != '\n')
+		i++;
+	line = (char *) malloc(ft_strlen(tmp) + i + 1);
+	// line now points to a newline space, which is not filled yet
+	while (*tmp)
+		*line++ = *tmp++;
+	j = 0;
+	// I want to copy till \n and \n itself too, so i + 1 bytes
+	while (j <= i + 1)
+	{
+		*line++ = buffer[j];
+		j++;
+	}
+	free(tmp);
+	*tmp = NULL; // ???? not sure about this one
+	return (line);
 }
 
 ///code graveyard
