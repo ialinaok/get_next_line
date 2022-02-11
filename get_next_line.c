@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ialinaok <ialinaok@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 03:40:19 by ialinaok         ###   ########.fr       */
+/*   Updated: 2022/02/11 15:54:21 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,19 @@ char	*read_buffers(int fd, char *buffer)
 	if (check == -1)
 		return (NULL);
 	buffer[BUFFER_SIZE] = '\0';
-	find_n = ft_strchr(buffer, '\n');
-	while ()
+	while (check != -1)
+	{
+		find_n = ft_strchr(buffer, '\n');
+		if (find_n == NULL) // that means, if there is no newline in current buffer
+		{
+			
+		}
+		check = read(fd, buffer, BUFFER_SIZE);
+	}
+	
 }
 
-///graveyard code
+///code graveyard
 char	*read_buffers(int fd);
 char	*cut_line(char *buff_join, int n, char *leftover);
 

@@ -100,3 +100,10 @@ it should be the neginning of the line
 then you read BUFFER_SIZE
 and repeat the whole process generally
 
+function read buffers:
+what do I want to do:
+if I find a newline, I want to return a line
+but let's assume I'm not going to find it in the first reading, 
+so let's first put the if I didn't find a newline condition
+if I dont find it, I want to update the line and clean the buffer
+
