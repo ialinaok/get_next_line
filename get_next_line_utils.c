@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ialinaok <ialinaok@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:42:46 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 01:00:53 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/11 16:19:06 by ialinaok         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,4 +80,16 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dst_size)
 		dst[dst_size - 1] = '\0';
 	}
 	return (src_len);
+}
+
+void	ft_bzero(void *s, size_t n)
+{
+	unsigned char	*put;
+
+	put = s;
+	while (n > 0)
+	{
+		*put++ = '\0';
+		n--;
+	}
 }
