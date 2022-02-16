@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ialinaok <ialinaok@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:42:46 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/11 16:19:06 by ialinaok         ###   ########.fr       */
+/*   Updated: 2022/02/16 20:46:26 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-size_t  ft_strlen(char const *s)
+#include "get_next_line.h"
+
+size_t	ft_strlen(char const *s)
 {
 	size_t	n;
 
@@ -39,6 +41,18 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (ptr);
 }
 
+void	ft_bzero(void *s, size_t n)
+{
+	unsigned char	*put;
+
+	put = s;
+	while (n > 0)
+	{
+		*put++ = '\0';
+		n--;
+	}
+}
+
 char	*ft_strchr(char const *str, int c)
 {
 	char	*ptr;
@@ -55,41 +69,17 @@ char	*ft_strchr(char const *str, int c)
 	return (NULL);
 }
 
-size_t	ft_strlcpy(char *dst, const char *src, size_t dst_size)
+void	*ft_memcpy(void *dest, const void *src, size_t n)
 {
-	size_t	src_len;
-	int		n;
+	unsigned char	*put_dest;
+	const char		*put_src;
 
-	src_len = ft_strlen(src);
-	n = src_len;
-	if (src_len + 1 < dst_size)
+	put_dest = dest;
+	put_src = src;
+	while (n > 0 && (dest != NULL || src != NULL))
 	{
-		while ((n + 1) != 0)
-		{
-			*dst++ = *src++;
-			n--;
-		}
-	}
-	if ((src_len >= dst_size) && (dst_size != 0))
-	{
-		while ((dst_size - 1) != 0)
-		{
-			*dst++ = *src++;
-			dst_size--;
-		}
-		dst[dst_size - 1] = '\0';
-	}
-	return (src_len);
-}
-
-void	ft_bzero(void *s, size_t n)
-{
-	unsigned char	*put;
-
-	put = s;
-	while (n > 0)
-	{
-		*put++ = '\0';
+		*put_dest++ = *put_src++;
 		n--;
 	}
+	return (dest);
 }
