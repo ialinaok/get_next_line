@@ -6,7 +6,7 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/16 22:28:02 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/16 22:36:29 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ int	full_line(char *tmp, char *buffer, char *line)
 
 int	main(void)
 {
-	
+	     
 }
 
 ///code graveyard
