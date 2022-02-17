@@ -158,3 +158,10 @@ what needs to happen with the leftovers? well they need to be copied to the begi
 and taken out of the buffer before it's read
 
 looks like it's done?!?!?!?! let's get the tester
+
+ok, one more element - you need to check when it reaches the end! 
+read will return zero or less than requested
+
+ok so once you've read sth with newline
+dont read again
+ideas needed

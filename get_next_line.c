@@ -6,7 +6,7 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/16 22:36:29 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/17 23:17:04 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,12 @@
 char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
-	char		*tmp;
 	char		*line;
+	char		*tmp;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	tmp = (char *) malloc(1);
+	tmp = malloc(sizeof(char));
 	*tmp = '\0';
 	if (buffer[0] != '\0') // that means there are leftovers
 	{
@@ -29,41 +29,43 @@ char	*get_next_line(int fd)
 		tmp = line;
 		ft_bzero(buffer, BUFFER_SIZE);
 	}
-	line = read_buffers(fd, buffer, tmp);
+	line = read_buffers(fd, buffer, &tmp);
 	return (line);
 }
 
-char	*read_buffers(int fd, char *buffer, char *tmp)
+char	*read_buffers(int fd, char *buffer, char **tmp)
 {
 	int		check;
 	char	*find_n;
 	int		leftovers;
-	char	*line;
+	char	*line = NULL;
 
 	check = read(fd, buffer, BUFFER_SIZE);
 	if (check == -1)
 		return (NULL);
 	buffer[BUFFER_SIZE] = '\0';
-	while (check != -1)
-	{
-		find_n = ft_strchr(buffer, '\n');
-		while (find_n == NULL) // that means, if there is no newline in current buffer
+	// while (check != -1)
+	// {
+		// find_n = 
+		while (ft_strchr(buffer, '\n')) // that means, if there is no newline in current buffer
 		{
-			line = ft_strjoin(tmp, buffer);
-			free(tmp);
-			tmp = line;
+			line = ft_strjoin(*tmp, buffer);
+			free(*tmp);
+			*tmp = line;
 			ft_bzero(buffer, BUFFER_SIZE);
 			check = read(fd, buffer, BUFFER_SIZE);
+			if(check == - 1)
+				return NULL;
 			buffer[BUFFER_SIZE] = '\0';
 			find_n = ft_strchr(buffer, '\n');
 		}
 		if (find_n != NULL) // so when I DO find a newline character //tmp has a current line of joined buffers
 		{
-			leftovers = BUFFER_SIZE - full_line(tmp, buffer, line);
+			leftovers = BUFFER_SIZE - full_line(*tmp, buffer, line);
 			ft_memcpy(buffer, ++find_n, leftovers);
 		}
-	}
-	return (line);
+	// }
+	return (*tmp);
 }
 
 int	full_line(char *tmp, char *buffer, char *line)
@@ -85,13 +87,23 @@ int	full_line(char *tmp, char *buffer, char *line)
 		*line++ = buffer[j];
 		j++;
 	}
-	free(tmp);
+	// free(tmp);
 	return (i);
 }
 
+#include <fcntl.h>
+#include <stdio.h>
+
 int	main(void)
 {
-	     
+	int	fd = 0;
+	char	*linea;
+	char	*lineb;
+
+	fd = open("test.txt", O_RDONLY);
+	linea = get_next_line(fd);
+	lineb = get_next_line(fd);
+	printf("this is fd: %d\nthis is line a: %s\nthis is line b: %s", fd, linea, lineb);
 }
 
 ///code graveyard
