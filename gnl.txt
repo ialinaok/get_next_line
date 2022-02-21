@@ -1,3 +1,4 @@
+gcc -Wall -Wextra -Werror -D BUFFER_SIZE=2 get_next_line.c get_next_line.h get_next_line_utils.c
 ok, soooo what do we have to do:
 we have a file and we read from it by the buffer size
 until we find a \n
@@ -165,3 +166,94 @@ read will return zero or less than requested
 ok so once you've read sth with newline
 dont read again
 ideas needed
+
+okay so it segfaults because I'm passing the copy of the line 
+alright I made it too complicated maybe
+is it time for code graveyard vol2 hehe
+
+still it's returning me the whole buffer and not a single line
+ok so - for buffer that has more than newline characters it returns a full buffer
+if there are multiple buffers in the line it returns a line WITHOUT newline character
+and a second line with newline character and so on
+doesn't return the last line, it runs infinietly - which makes sense as I don't check read anywhere
+
+so this extra newline is here because I do nothing about leftovers??
+okay why is the freaking newline there lol
+
+I'm returning tmp all the time lol
+now it's actually returning a line!!!
+
+so it's now only working with buffer smaller than a full line
+and only if a full line will fit into BUFFER_SIZE times x
+if it's more it is timing out so I guess it's gotta do with leftovers handling
+and also, it's not returning the lines properly - it only works for buffersize = 1;
+
+got it - the moving of the leftovers doesn't work
+
+ok so line is returned with extra stuff which idk where does it come from
+
+so I am accessing memory that I don't have control over! but whyyyy
+because I'm not putting the null lol after the full line haha
+
+what if I make one function for both joining buffers and making full line?
+
+custom strjoin to save on lines = copy until null or until nl, would that work?
+then I'd only need to search for null in one place
+check newline in the buffer, if there is one only copy until newline
+also, I need to figure out how much to allocate for the line
+or should I just allocate all and whatever is left with nulls is fine?
+
+OKAY so I have this function, 
+would be curious to see if it's working ˆˆ
+it's working but it's looong
+
+I could check outside and split this in two functions
+like I could check this in read_buffers and make only if this/that, but then I also need
+to pass find_nl to the function with newline - or index
+EITHER THIS
+	line = malloc(ft_strlen(*tmp) + BUFFER_SIZE - ft_strlen(find_nl) + 1);
+OR THIS
+	while (buffer[i] != '\n')
+		i++;
+	line = (char *) malloc(ft_strlen(tmp) + i + 1);
+
+but then the number of functions is growing, but these are very similar, and I'm giving up on strjoin
+......................................................................................................
+I got lost in it
+
+thing to consider - what if there's more than one newline in the buffer?
+this is actually the problem...
+
+so, call different functions for when you have the newline and for when not
+
+while you keep reading the buffers (no newline), just strjoin
+when you have the newline, you send it to the function that takes newline
+
+or 
+as you are receiving the full buffer joined
+maybe make the condition to copy the buffer till zero or null?
+
+and you can only use one line to check for nl
+and then allocate
+if/else! 4 lines
+and the rest will shortcut
+
+todo
+check how a condition like this would work
+while (buffer[j] != '\0' || buffer[j+1] != '\n')
+notes on that - it'll work but with && - there's a not !
+
+I need to move the leftoverand put zeroes in the buffer and check the return of read to find the end
+of the file
+
+I know why it segfaults - I'm giving it the NULL pointer when there is no newline...
+and I'm doing it again ehheheheh
+alright, the third line is returned with more shit, basically all that was 
+in the leftovers, and it's because of how I check for nl in the gnl main c file
+but, maybe if I add the checking of what read returns it will be okay?
+becaue it's returning the last line forever - adding a nl char doesnt improve the situation
+
+how does gnl stop after the end of the file? stop reading?
+
+the best working but with timeout is the one with long join_line
+null shouldn't always be where the buffersize is! if read returns less, then it should be

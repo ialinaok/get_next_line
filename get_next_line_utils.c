@@ -6,11 +6,13 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:42:46 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/17 23:02:06 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/18 22:45:41 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+#include <stdio.h>
 
 size_t	ft_strlen(char const *s)
 {
@@ -78,6 +80,8 @@ void	*ft_memcpy(void *dest, const void *src, size_t n)
 	put_src = src;
 	while (n > 0 && (dest != NULL || src != NULL))
 	{
+		// printf("\nfrom memcpy dst: %s", put_dest);
+		// printf("\nfrom memcpy src: %s", put_src);
 		*put_dest++ = *put_src++;
 		n--;
 	}
