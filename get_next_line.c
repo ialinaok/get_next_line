@@ -15,13 +15,44 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+// char	*get_next_line(int fd)
+// {
+// 	static char buffer[BUFFER_SIZE + 1];
+// 	char	*tmp;
+// 	int	check;
+
+// 	if (fd < 0)
+// 		return NULL;
+// 	tmp = malloc(sizeof(char));
+// 	while (!ft_strchr(buffer, '\n'))
+// 	{
+// 		if (*buffer)
+// 			join_line(&tmp, buffer);
+// 		check = read(fd, buffer, BUFFER_SIZE);
+// 		if (check <= 0 && !(*tmp))
+// 		{
+// 			free(tmp);
+// 			return (NULL);
+// 		}
+// 		buffer[BUFFER_SIZE] = '\0';
+// 		if (!ft_strchr(buffer, '\n') && check < BUFFER_SIZE)
+// 		{
+// 			free(tmp);
+// 			return (NULL);
+// 		}
+// 	}
+// 	join_line(&tmp, buffer);
+// 	move_leftovers(buffer);
+// 	return (tmp);
+// }
+
 char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
-	char		*line;
 	char		*tmp;
 	int			check;
 
+	buffer[BUFFER_SIZE] = '\0';
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	tmp = malloc(sizeof(char));
@@ -29,24 +60,36 @@ char	*get_next_line(int fd)
 	if (buffer[0] != '\0') // that means there are leftovers
 	{
 		// printf("\nleftovers: %s", buffer);
-		line = ft_strjoin(tmp, buffer);
-		free(tmp);
-		tmp = line;
-		// printf("\ntmp w leftovers: %s", tmp);
-		ft_bzero(buffer, BUFFER_SIZE);
-	}
-	while (!ft_strchr(buffer, '\n'))
-	{
-		check = read(fd, buffer, BUFFER_SIZE);
-		if (check == -1)
-			return (NULL);
-		buffer[BUFFER_SIZE] = '\0';
-		// printf("\nbuffer in gnl: %s", buffer);
-		// printf("\ntmp in gnl: %s", tmp);
 		join_line(&tmp, buffer);
-		if (check < BUFFER_SIZE)
-			break;
+		// printf("\ntmp w leftovers: %s", tmp);
 	}
+	while (!ft_strchr(tmp, '\n'))
+	{
+		ft_bzero(buffer, BUFFER_SIZE);
+		check = read(fd, buffer, BUFFER_SIZE);
+		// printf("\n   read return: %d", check);
+		if(check <= 0 && !*(tmp))
+		{
+			ft_bzero(buffer, BUFFER_SIZE);
+			// printf("\n.....%s", buffer);
+			free(tmp);
+			return (NULL);
+		}
+		buffer[check] = '\0';
+		// printf("\nbuffer in gnl: %s", buffer);
+		
+		join_line(&tmp, buffer);
+		// move_leftovers(buffer);
+		// printf("\ntmp in gnl: %s", tmp);
+		if (check < BUFFER_SIZE && !ft_strchr(tmp, '\n'))
+		{		
+			// printf("\n......tmp in gnl: %s", tmp);
+			ft_bzero(buffer, BUFFER_SIZE);
+			// printf("\n=====%s", buffer);
+			break;
+		}
+	}
+	// move_leftovers(buffer);
 	return (tmp);
 }
 
@@ -56,7 +99,8 @@ void	join_line(char **tmp, char *buffer)
 	char	*find_nl;
 	int		i;
 	int		j;
-
+	if(!*tmp || !buffer)
+		return ;
 	i = 0;
 	j = 0;
 	find_nl = ft_strchr(buffer, '\n');
@@ -64,16 +108,18 @@ void	join_line(char **tmp, char *buffer)
 		line = malloc(ft_strlen(*tmp) + BUFFER_SIZE - ft_strlen(find_nl) + 1);
 	else
 		line = malloc(ft_strlen(*tmp) + BUFFER_SIZE + 1);
+	if (!line)
+		return ;
 	while (tmp[0][j])
 		line[i++] = tmp[0][j++];
 	j = 0;
-	// printf("\nline1: %s", line);
 	while (buffer[j] != '\0' && buffer[j] != '\n')
 		line[i++] = buffer[j++];
 	if (buffer[j] == '\n')
 	{
 		line[i++] = buffer[j++];
 		move_leftovers(buffer, ++find_nl);
+		// printf("\nthis is findnl: %s", find_nl);
 	}
 	line[i] = '\0';
 	free((void *)tmp[0]);
@@ -91,9 +137,25 @@ void	move_leftovers(char *buffer, char *find_nl)
 		buffer[i] = find_nl[i];
 		i++;
 	}
-	buffer[i] = '\0';
+	while (buffer[i])
+		buffer[i++] = '\0'; // it's not necessary, only one null is needed
 }
 
+// void	move_leftovers(char *buffer)
+// {
+// 	int	bufflen;
+// 	int	linelen;
+// 	int	leftovers;
+// 	int	i;
+
+// 	bufflen = ft_strlen(buffer);
+// 	linelen = bufflen - ft_strlen(ft_strchr(buffer, '\n') + 1);
+// 	leftovers = bufflen - linelen;
+// 	i = 0;
+// 	while (buffer[linelen])
+// 		buffer[i++] = buffer[linelen++];
+// 	ft_bzero(&buffer[leftovers], linelen);
+// }
 
 // void	join_line(char **tmp, char *buffer)
 // {
@@ -260,7 +322,7 @@ void	move_leftovers(char *buffer, char *find_nl)
 // 	char	*linea;
 // 	char	*lineb;
 // 	char	*linec;
-// 	// char	*lined;
+// 	char	*lined;
 
 // 	fd = open("test.txt", O_RDONLY);
 // 	linea = get_next_line(fd);
@@ -269,7 +331,7 @@ void	move_leftovers(char *buffer, char *find_nl)
 // 	printf("\nthis is line b: %s", lineb);
 // 	linec = get_next_line(fd);
 // 	printf("\nthis is line c: %s", linec);
-// 	// lined = get_next_line(fd);
+// 	lined = get_next_line(fd);
 // }
 
 ///code graveyard

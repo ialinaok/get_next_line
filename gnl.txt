@@ -257,3 +257,76 @@ how does gnl stop after the end of the file? stop reading?
 
 the best working but with timeout is the one with long join_line
 null shouldn't always be where the buffersize is! if read returns less, then it should be
+
+it also needs to return an empty line ehheheheh
+so there might only be nlines in the buffer
+
+questions:
+- help me with analysing the tester results
+- how should it work when there's no nl?
+- how do I 'quit' - how does it behave when there's nothing left to read?
+- to wrap my head around it - if there's only nl then is it a previous 
+line? I guess..?
+
+check malloc return 
+check for leaks
+
+when there's multiple nl in the buffer 
+
+ok, the issue with looking for nl in tmp - why don't I use my function there???!!!
+and cut out strjoin completely - ok, so that works
+now, there's this issue that leftovers are cut out completely, and they shouldn't be
+if there's nl in leftovers, then there's going to be more leftovers from 
+these leftovers, so instead of zeroing out the buffer, move the leftovers
+so what needs to happen then - if there's nl then move 
+if there's not, then zero the buffer
+
+is sth in buffer considered a memleak?
+
+alrighty, memleaks are fixed, now I only need to look into:
+the last line, if there is no newline! ^^
+
+ok, so now how it's working - it's reading until eof and returning the line fully, 
+but then it's still returning sth, so after reading 0 and joining the line together
+I should clean the buffer and that should be fixed
+
+and what I'm doing now, I'm freeing the tmp when check is <= zero but together 
+with if there's nothing in tmp
+but this condition is not entered bc there is sth in tmp - the elftovers, or what was in the buffer
+which function decides what gets returned? because after I've retirned the LAST line
+I have to clear the buffer
+I need to know FOR SURE when I'm returning the last line!
+if I have my tmp empty - which is, I don't add leftovers to tmp
+or maybe, don't even keep leftovers?
+I only move leftobers now when there's newline in the buffer
+what if I move them somewhere else?
+there should be no leftovers when read returns 0
+no, not true
+actually not true, because in the current buffer there might still be more
+than one newline can there be
+hehehe if I used second static, I could save check there
+but I can work around it, or can I 
+ugh 
+to play these corner cases around is tricky
+what if move_leftovers also received the last read value? 
+ok now, it there are leftovers, I don't want to clear the tmp unless
+they were returned in a line
+if there's nothing else to return, return null?
+hey, if check == 0, do I even want to join the line
+no, because there's nothing in the buffer
+but what about leftovers? there it should be working normally I suppose
+
+ok last line no nl scenario:
+there might be something in the leftovers that's the last line 
+or it might be read in this function call
+1) if there's something from leftovers:
+there will be no nl in there, so join will put it in tmp and then it'll enter the loop
+if nothing new is read, that means that whatever is in the tmp is the last line
+or that it was already returned
+so ideally there should be nothing in leftovers the first time read returns zero
+OR less than BUFFER_SIZE
+but in my function leftovers are already in tmp then
+
+ok I am only doing the leftovers when there's newline
+I can do it without
+because I should take care of leftovers no matter if I find nl or not
