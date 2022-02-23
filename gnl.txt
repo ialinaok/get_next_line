@@ -330,3 +330,6 @@ but in my function leftovers are already in tmp then
 ok I am only doing the leftovers when there's newline
 I can do it without
 because I should take care of leftovers no matter if I find nl or not
+
+all that had to be done - put zeroes in the buffer after returning the last line...
+finished now
