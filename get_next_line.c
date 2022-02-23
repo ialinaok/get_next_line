@@ -6,7 +6,7 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/23 12:55:58 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/23 21:01:09 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ char	*get_next_line(int fd)
 		ft_bzero(buffer, BUFFER_SIZE);
 		check = read(fd, buffer, BUFFER_SIZE);
 		if (check <= 0 && !(*line))
-			return (done_reading(&line, buffer));
+			return (done_reading(&line));
 		buffer[check] = '\0';
 		join_line(&line, buffer);
 		if (check < BUFFER_SIZE && !ft_strchr(line, '\n'))
@@ -41,9 +41,8 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-char	*done_reading(char **line, char *buffer)
+char	*done_reading(char **line)
 {
-	ft_bzero(buffer, BUFFER_SIZE);
 	free(*line);
 	return (NULL);
 }
@@ -58,7 +57,7 @@ void	join_line(char **line, char *buffer)
 	i = 0;
 	j = 0;
 	find_nl = ft_strchr(buffer, '\n');
-	tmp = allocate_tmp(line, find_nl);
+	tmp = allocate_tmp(line, find_nl, ft_strlen(buffer));
 	if (!tmp)
 		return ;
 	while (line[0][j])
@@ -76,14 +75,14 @@ void	join_line(char **line, char *buffer)
 	line[0] = tmp;
 }
 
-char	*allocate_tmp(char **line, char *find_nl)
+char	*allocate_tmp(char **line, char *find_nl, int bufflen)
 {
 	char	*tmp;
 
 	if (find_nl)
-		tmp = malloc(ft_strlen(*line) + BUFFER_SIZE - ft_strlen(find_nl) + 1);
+		tmp = malloc(ft_strlen(*line) + bufflen - ft_strlen(find_nl) + 2);
 	else
-		tmp = malloc(ft_strlen(*line) + BUFFER_SIZE + 1);
+		tmp = malloc(ft_strlen(*line) + bufflen + 1);
 	return (tmp);
 }
 

@@ -1,4 +1,4 @@
-gcc -Wall -Wextra -Werror -D BUFFER_SIZE=2 get_next_line.c get_next_line.h get_next_line_utils.c
+gcc -Wall -Wextra -Werror -D BUFFER_SIZE=2 get_next_line.c get_next_line_utils.c
 ok, soooo what do we have to do:
 we have a file and we read from it by the buffer size
 until we find a \n
