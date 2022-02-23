@@ -6,7 +6,7 @@
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:29:51 by ialinaok          #+#    #+#             */
-/*   Updated: 2022/02/23 21:01:09 by apielasz         ###   ########.fr       */
+/*   Updated: 2022/02/23 21:06:33 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,7 @@ void	move_leftovers(char *buffer, char *find_nl)
 		buffer[i] = find_nl[i];
 		i++;
 	}
-	while (buffer[i])
-		buffer[i++] = '\0';
+	buffer[i] = '\0';
 }
 
 // #include <fcntl.h>
