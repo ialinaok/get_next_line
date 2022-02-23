@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: apielasz <apielasz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/07 11:35:41 by apielasz          #+#    #+#             */
-/*   Updated: 2022/02/18 22:30:24 by apielasz         ###   ########.fr       */
+/*   Created: 2022/02/22 11:00:56 by ialinaok          #+#    #+#             */
+/*   Updated: 2022/02/23 12:57:12 by apielasz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,13 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-size_t	ft_strlen(char const *s);
-char	*ft_strjoin(char const *s1, char const *s2);
+size_t	ft_strlen(char const *str);
 void	ft_bzero(void *s, size_t n);
 char	*ft_strchr(char const *str, int c);
-void	*ft_memcpy(void *dest, const void *src, size_t n);
-char	*get_next_line(int fd);
-char	*read_buffers(int fd, char *buffer, char **tmp);
-char	*full_line(char *tmp, char *buffer);
-void	join_line(char **tmp, char *buffer);
+void	join_line(char **line, char *buffer);
 void	move_leftovers(char *buffer, char *find_nl);
+char	*done_reading(char **line, char *buffer);
+char	*allocate_tmp(char **line, char *find_nl);
+char	*get_next_line(int fd);
 
 #endif
