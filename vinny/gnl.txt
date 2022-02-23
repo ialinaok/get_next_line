@@ -1,0 +1,335 @@
+gcc -Wall -Wextra -Werror -D BUFFER_SIZE=2 get_next_line.c get_next_line.h get_next_line_utils.c
+ok, soooo what do we have to do:
+we have a file and we read from it by the buffer size
+until we find a \n
+and then we return that line
+
+- memory for the line, aka what we're reading, is allocated dynamically
+- static variable is used for the leftovers
+- function should ideally be called until the end of the file
+- no memory leaks - but in between function calls, the leftovers are saved
+in the static variable
+
+step by step:
+1# read the BUFFER_SIZE
+2# alloctae memory for what you read
+3# save what you read in the allocated thing - array of arrays? it would make
+it easy to allocate NO IT WOULD NOT WORK
+you cannot extend the memory <shruggie>
+or you don't have to, but then how to allocate more memory for the same 
+variable?
+4# check if there's newline character in what you've read already 
+  - if yes - return the line
+  - if no - go to step 1# and save the next part read in the array of arrays
+  now: array of pointers or 2D array..? I like the pointers... just don't mess it up alright
+now... how to return the line? I have to free the memory that I have allocated. 
+4# if yes:
+    copy the line from buffer to the variable that you're going to return 
+    - it can be local! it's not going to leak memory!
+    put the leftovers from the buffer to the static variable, so that it's saved for the next round
+    return the line
+4# if no - read next buffer, allocate, save in the buffer, check for newline
+(that just calls for a recursive function so badly)
+keep repeating until \n is found or EOF
+
+theoretically it should be in the beginning, but....
+5# next function call - you have to deal with the leftovers now
+what do I save in the buffer? the part that I read. do I allocate memory for it?
+not neccesarily, I can make it local. and static. then I can save leftovers there 
+already
+then, for allocating I use another char * - and this one can be dynamically
+allocated, as there's going to be a funky number of characters saved there
+and not like x times BUFFER_SIZE.
+
+strjoin allocates memory for ya
+how do I make a single line? that ends at the newline character and not 
+somewhere where the buffer?
+
+ehheheheh
+ok you have to decide what your buffer is going to be
+where you keep one read part of BUFFER_SIZE
+ok so now, you can have it in heap orrrr you can just have an array:
+char buff[BUFFER_SIZE + 1];
+
+how to find newline character:
+strchr returns a pointer to the first occurence of the character c in the string
+returns a pointer to the char or NUL if not found
+how to manage the line and the leftover
+
+
+or I can just search with an index, but I think this is quite handy if I can make it work
+I don't have to worry about fd, read just does that for me, as I've stored the previous 
+leftovers, I can freely read from another BUFFER_SIZE position
+ok, but the reading until newline is found just calls for a newline, or maybe
+I could just set it up in a loop
+
+	if I have the number of characters that are there in the line - I can make a local
+	variable of this certain size that will then magically disappear, there's no need to 
+	allocate memory anymore
+
+so I am allocating plus one byte, but I'm never actually putting a null there
+ok, strjoin is doing that
+
+ok, figuring out the nuls and stuff
+put a nul at the end of read buff, for the strjoin to work properly
+buff[BUFFER_SIZE] is going to be where you need to put in the nul
+
+what if I do both at the same time
+leftover will not be bigger than BUFFER_SIZE
+I can make an array and then pass it by reference to the function that will extract
+the line, and modify the leftover there
+bingo 
+
+ok so now I've got it handled for reading a single line, there's nothing about using the leftover yet
+
+ok so it's not so easy 
+
+ so what read actually does, when you give it a buffer that already has something
+ it will add to it
+ concatenate the new things to whats there
+ but it needs an empty buffer - otherwise the fd will jump the full BUFFER_SIZE but 
+ we'll not be able to save it all
+
+so the way you wanna do it, you build up a line and allocate memory dynamically, 
+then you return it
+but before you return it, update the buffer, and only keep there what's leftover
+and do so in a static variable
+leftover needs to be pushed to the beginning of the static buffer
+so that it's saved for the future call
+upon the next call you can see: oh, there's something there, and empty it
+it should be the neginning of the line 
+then you read BUFFER_SIZE
+and repeat the whole process generally
+
+function read buffers:
+what do I want to do:
+if I find a newline, I want to return a line
+but let's assume I'm not going to find it in the first reading, 
+so let's first put the if I didn't find a newline condition
+as long as (while) I dont find it, I want to update the line and clean the buffer
+- so join the line with buffer
+- put zeroes in the buffer
+- read again
+MEMLEAKS
+every time I call strjoin, I make an entirely new string
+I need to remove the old one
+I need a temporary thing for that ok but how
+I have to join the buffer to the previous line-build-up
+so make a new line
+keep the ptr of the old one
+free the memory of the old one
+point it to the new one
+if I find a newline character in the current buffer
+- glue the line together until the newline character
+- push leftovers to the beginning of the buffer
+- return the line
+to push the leftovers I'll use BUFFER_SIZE and the amount of letters returned from full_line
+
+full_line function
+takes the buffer that has \n in it, current line with previously 
+joined buffers and a pointer to char variable (line)
+allocates memory for the new full line, where I will put line with all 
+previously joined buffers and the part of the buffer before the newline char
+and a newline char
+I'm not sure whether I should null terminate this one
+then I free the temp
+
+what still needs to be done is moving the leftover in the buffer
+and in the reading, check if sth is there and if yes, first join it together
+
+let's remember after the weekend what's going on here:
+I first check the fd and BUFFER_SIZE
+I have two char * here - one that will store one full line, and 
+another one as a tmp
+
+the idea is that I read a buffer_size of the file into the buffer, using
+for this purpose function read_bufffers, which is explained above
+
+ ok so I use memmove, so that it works properly it needs to get:
+ the destination address - in my case base address of buffer
+ the src address - in my case the address of \n plus 1, so that we copy without the \n
+the amount of bytes to copy - BUFFER_SIZE minus the index of where n is
+
+ok and then there's still the 'check if sth is in the buffer' left
+after moving the leftovers - if there were no leftovers, there'll be null character
+moved to the first position
+so to check whether there are leftovers - first check for a zero
+
+what needs to happen with the leftovers? well they need to be copied to the beginnging of the line
+and taken out of the buffer before it's read
+
+looks like it's done?!?!?!?! let's get the tester
+
+ok, one more element - you need to check when it reaches the end! 
+read will return zero or less than requested
+
+ok so once you've read sth with newline
+dont read again
+ideas needed
+
+okay so it segfaults because I'm passing the copy of the line 
+alright I made it too complicated maybe
+is it time for code graveyard vol2 hehe
+
+still it's returning me the whole buffer and not a single line
+ok so - for buffer that has more than newline characters it returns a full buffer
+if there are multiple buffers in the line it returns a line WITHOUT newline character
+and a second line with newline character and so on
+doesn't return the last line, it runs infinietly - which makes sense as I don't check read anywhere
+
+so this extra newline is here because I do nothing about leftovers??
+okay why is the freaking newline there lol
+
+I'm returning tmp all the time lol
+now it's actually returning a line!!!
+
+so it's now only working with buffer smaller than a full line
+and only if a full line will fit into BUFFER_SIZE times x
+if it's more it is timing out so I guess it's gotta do with leftovers handling
+and also, it's not returning the lines properly - it only works for buffersize = 1;
+
+got it - the moving of the leftovers doesn't work
+
+ok so line is returned with extra stuff which idk where does it come from
+
+so I am accessing memory that I don't have control over! but whyyyy
+because I'm not putting the null lol after the full line haha
+
+what if I make one function for both joining buffers and making full line?
+
+custom strjoin to save on lines = copy until null or until nl, would that work?
+then I'd only need to search for null in one place
+check newline in the buffer, if there is one only copy until newline
+also, I need to figure out how much to allocate for the line
+or should I just allocate all and whatever is left with nulls is fine?
+
+OKAY so I have this function, 
+would be curious to see if it's working ˆˆ
+it's working but it's looong
+
+I could check outside and split this in two functions
+like I could check this in read_buffers and make only if this/that, but then I also need
+to pass find_nl to the function with newline - or index
+EITHER THIS
+	line = malloc(ft_strlen(*tmp) + BUFFER_SIZE - ft_strlen(find_nl) + 1);
+OR THIS
+	while (buffer[i] != '\n')
+		i++;
+	line = (char *) malloc(ft_strlen(tmp) + i + 1);
+
+but then the number of functions is growing, but these are very similar, and I'm giving up on strjoin
+......................................................................................................
+I got lost in it
+
+thing to consider - what if there's more than one newline in the buffer?
+this is actually the problem...
+
+so, call different functions for when you have the newline and for when not
+
+while you keep reading the buffers (no newline), just strjoin
+when you have the newline, you send it to the function that takes newline
+
+or 
+as you are receiving the full buffer joined
+maybe make the condition to copy the buffer till zero or null?
+
+and you can only use one line to check for nl
+and then allocate
+if/else! 4 lines
+and the rest will shortcut
+
+todo
+check how a condition like this would work
+while (buffer[j] != '\0' || buffer[j+1] != '\n')
+notes on that - it'll work but with && - there's a not !
+
+I need to move the leftoverand put zeroes in the buffer and check the return of read to find the end
+of the file
+
+I know why it segfaults - I'm giving it the NULL pointer when there is no newline...
+and I'm doing it again ehheheheh
+alright, the third line is returned with more shit, basically all that was 
+in the leftovers, and it's because of how I check for nl in the gnl main c file
+but, maybe if I add the checking of what read returns it will be okay?
+becaue it's returning the last line forever - adding a nl char doesnt improve the situation
+
+how does gnl stop after the end of the file? stop reading?
+
+the best working but with timeout is the one with long join_line
+null shouldn't always be where the buffersize is! if read returns less, then it should be
+
+it also needs to return an empty line ehheheheh
+so there might only be nlines in the buffer
+
+questions:
+- help me with analysing the tester results
+- how should it work when there's no nl?
+- how do I 'quit' - how does it behave when there's nothing left to read?
+- to wrap my head around it - if there's only nl then is it a previous 
+line? I guess..?
+
+check malloc return 
+check for leaks
+
+when there's multiple nl in the buffer 
+
+ok, the issue with looking for nl in tmp - why don't I use my function there???!!!
+and cut out strjoin completely - ok, so that works
+now, there's this issue that leftovers are cut out completely, and they shouldn't be
+if there's nl in leftovers, then there's going to be more leftovers from 
+these leftovers, so instead of zeroing out the buffer, move the leftovers
+so what needs to happen then - if there's nl then move 
+if there's not, then zero the buffer
+
+is sth in buffer considered a memleak?
+
+alrighty, memleaks are fixed, now I only need to look into:
+the last line, if there is no newline! ^^
+
+ok, so now how it's working - it's reading until eof and returning the line fully, 
+but then it's still returning sth, so after reading 0 and joining the line together
+I should clean the buffer and that should be fixed
+
+and what I'm doing now, I'm freeing the tmp when check is <= zero but together 
+with if there's nothing in tmp
+but this condition is not entered bc there is sth in tmp - the elftovers, or what was in the buffer
+which function decides what gets returned? because after I've retirned the LAST line
+I have to clear the buffer
+I need to know FOR SURE when I'm returning the last line!
+if I have my tmp empty - which is, I don't add leftovers to tmp
+or maybe, don't even keep leftovers?
+I only move leftobers now when there's newline in the buffer
+what if I move them somewhere else?
+there should be no leftovers when read returns 0
+no, not true
+actually not true, because in the current buffer there might still be more
+than one newline can there be
+hehehe if I used second static, I could save check there
+but I can work around it, or can I 
+ugh 
+to play these corner cases around is tricky
+what if move_leftovers also received the last read value? 
+ok now, it there are leftovers, I don't want to clear the tmp unless
+they were returned in a line
+if there's nothing else to return, return null?
+hey, if check == 0, do I even want to join the line
+no, because there's nothing in the buffer
+but what about leftovers? there it should be working normally I suppose
+
+ok last line no nl scenario:
+there might be something in the leftovers that's the last line 
+or it might be read in this function call
+1) if there's something from leftovers:
+there will be no nl in there, so join will put it in tmp and then it'll enter the loop
+if nothing new is read, that means that whatever is in the tmp is the last line
+or that it was already returned
+so ideally there should be nothing in leftovers the first time read returns zero
+OR less than BUFFER_SIZE
+but in my function leftovers are already in tmp then
+
+ok I am only doing the leftovers when there's newline
+I can do it without
+because I should take care of leftovers no matter if I find nl or not
+
+all that had to be done - put zeroes in the buffer after returning the last line...
+finished now
